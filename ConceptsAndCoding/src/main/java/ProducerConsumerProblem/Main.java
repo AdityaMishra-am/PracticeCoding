@@ -1,6 +1,7 @@
 package ProducerConsumerProblem;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Main {
@@ -41,18 +42,12 @@ public class Main {
         playingWithSyncronised2.incrementCount();
       }
     }, "T4");
+
     ThreadPoolExecutorImplementation threadPoolExecutorImplementation = new ThreadPoolExecutorImplementation(4, 1000);
     for (int i = 0; i<1500; i++) {
       int finalI = i;
-      if (i%5 == 0) {
-        try {
-          Thread.sleep(100); }
-        catch (InterruptedException e) {
-          //
-        }
-      }
       try {
-      threadPoolExecutorImplementation.submit(() -> {
+        threadPoolExecutorImplementation.submit(() -> {
         System.out.println("Task " + finalI);
         try {
         Thread.sleep(100); }
@@ -74,6 +69,7 @@ public class Main {
       threadPoolExecutorImplementation.awaitTermination();
     } catch (InterruptedException e) {//
     }
+
    //t1.start();
     //t1.interrupt();
 //   t2.start();

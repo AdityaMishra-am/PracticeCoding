@@ -1,6 +1,9 @@
 package ProducerConsumerProblem;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -19,15 +22,40 @@ public class ThreadPoolExecutorImplementation {
       workerThreads[i].start();
     }
   }
-  public synchronized void submit(Runnable task) {
-    if (isShutdown) {
-      throw new RejectedExecutionException("ThreadPoolExecutor is shutdown");
-    }
-    if (!taskQueue.offer(task)) {
-      throw new RejectedExecutionException("Queue is full");
-    }
-
+//  public synchronized void submit(Runnable task) {
+//    if (isShutdown) {
+//      throw new RejectedExecutionException("ThreadPoolExecutor is shutdown");
+//    }
+//    if (!taskQueue.offer(task)) {
+//      throw new RejectedExecutionException("Queue is full");
+//    }
+//
+//  }
+public <T> Future<T> submit(Callable<T> task) throws RejectedExecutionException {
+  if (isShutdown) {
+    throw new RejectedExecutionException("Thread pool is shutdown");
   }
+  FutureTask<T> futureTask = new FutureTask<>(task);
+  taskQueue.offer(futureTask);
+  return futureTask;
+}
+
+  /**
+   * Submits a Runnable task for execution, returning a Future that yields null upon completion.
+   */
+  public Future<?> submit(Runnable task) throws RejectedExecutionException {
+    return submit(task, null);
+  }
+
+  public <T> Future<T> submit(Runnable task, T result) throws RejectedExecutionException {
+    if (isShutdown) {
+      throw new RejectedExecutionException("Thread pool is shutdown");
+    }
+    FutureTask<T> futureTask = new FutureTask<>(task, result);
+    taskQueue.offer(futureTask);
+    return futureTask;
+  }
+
   public void awaitTermination() throws InterruptedException {
     System.out.println("Waiting for shutdown");
     for (WorkerThread worker : workerThreads) {
